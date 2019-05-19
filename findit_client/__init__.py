@@ -31,5 +31,5 @@ class FindItClient(object):
 if __name__ == '__main__':
     cli = FindItClient(port=29412)
     assert cli.heartbeat()
-    result = cli.analyse_with_path(u'../../findit/sample/pics/screen.png', u'desktop/wechat_logo.png')
+    result = cli.analyse_with_path(u'tests/pics/screen.png', u'wechat_logo.png')
     print(result)
