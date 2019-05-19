@@ -9,7 +9,7 @@ find_it_client = FindItClient()
 
 @pytest.fixture(scope="session", autouse=True)
 def life_time():
-    server_process = subprocess.Popen('python3 -m findit.server --dir tests/pics', shell=True)
+    server_process = subprocess.Popen('python -m findit.server --dir tests/pics', shell=True)
     time.sleep(3)
     yield
     server_process.terminate()
