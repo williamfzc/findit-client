@@ -19,6 +19,8 @@ Client for [findit](https://github.com/williamfzc/findit), with no opencv needed
 假设你的findit-server部署在 29412 端口
 
 ```python
+from findit_client import FindItClient
+
 cli = FindItClient(port=29412)
 assert cli.heartbeat()
 result = cli.analyse_with_path('screen.png', u'wechat_logo.png')
@@ -28,7 +30,11 @@ print(result)
 result结果：
 
 ```text
-{'data': {'temp_template': {'FeatureEngine': [524.6688232421875, 364.54248046875], 'TemplateEngine': [505.5, 374.5]}}, 'target_name': 'temp_target', 'target_path': '/tmp/tmp0k8dfeez.png'}
+{'data': {'temp_template': {'FeatureEngine': [524.6688232421875,
+                                              364.54248046875],
+                            'TemplateEngine': [505.5, 374.5]}},
+ 'target_name': 'temp_target',
+ 'target_path': '/tmp/tmprh4m59_x.png'}
 ```
 
 ### 远程服务
@@ -36,11 +42,15 @@ result结果：
 假设你的findit-server部署在远程服务器 172.17.12.34 的 29412 端口
 
 ```python
+from findit_client import FindItClient
+
 cli = FindItClient(host='172.17.12.34', port=29412)
 assert cli.heartbeat()
 result = cli.analyse_with_path('screen.png', u'wechat_logo.png')
 print(result)
 ```
+
+result与本地一致。
 
 ## 协议
 
