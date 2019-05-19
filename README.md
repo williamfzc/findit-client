@@ -1,6 +1,7 @@
 # findit-client
 
 [![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
+[![Build Status](https://travis-ci.org/williamfzc/findit-client.svg?branch=master)](https://travis-ci.org/williamfzc/findit-client)
 
 Client for [findit](https://github.com/williamfzc/findit), with no opencv needed.
 
