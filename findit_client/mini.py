@@ -10,7 +10,7 @@ class FindItClient(FindItBaseClient):
 
 
 if __name__ == '__main__':
-    cli = FindItClient(host='172.17.204.2', port=29412)
+    cli = FindItClient(host='127.0.0.1', port=9410)
     assert cli.heartbeat()
-    result = cli.analyse_with_path(u'../tests/pics/screen.png', u'desktop/wechat_logo.png')
+    result = cli.analyse_with_path(u'../tests/pics/screen.png', u'wechat_logo.png')
     print(result)

@@ -1,4 +1,6 @@
+# -*- coding:utf-8 -*-
 import requests
+import json
 
 
 class FindItBaseClient(object):
@@ -23,7 +25,7 @@ class FindItBaseClient(object):
         )
         return resp.json()
 
-    def analyse_with_path(self, target_pic_path, template_pic_name):
+    def analyse_with_path(self, target_pic_path, template_pic_name, **extra_args):
         with open(target_pic_path, 'rb') as f:
             pic_data = f.read()
 
@@ -31,6 +33,7 @@ class FindItBaseClient(object):
             arg_dict={
                 'target_pic_path': target_pic_path,
                 'template_name': template_pic_name,
+                'extras': json.dumps(extra_args),
             },
             pic_data=pic_data,
         )
