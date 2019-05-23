@@ -37,3 +37,8 @@ class FindItBaseClient(object):
             },
             pic_data=pic_data,
         )
+
+    def check_exist_with_path(self, target_pic_path, template_pic_name, threshold, **extra_args):
+        result = self.analyse_with_path(target_pic_path, template_pic_name, pro_mode=True, **extra_args)
+        match_result = list(result['response']['data'].values())[0]['TemplateEngine']['raw']['max_val']
+        return match_result > threshold

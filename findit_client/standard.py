@@ -30,6 +30,10 @@ class FindItStandardClient(FindItBaseClient):
         with cv2file(target_pic_object) as file_path:
             return self.analyse_with_path(file_path, template_pic_name, **extra_args)
 
+    def check_exist_with_object(self, target_pic_object, template_pic_name, threshold, **extra_args):
+        with cv2file(target_pic_object) as file_path:
+            return self.check_exist_with_path(file_path, template_pic_name, threshold, **extra_args)
+
 
 if __name__ == '__main__':
     cli = FindItStandardClient(host='127.0.0.1', port=9411)
