@@ -36,12 +36,14 @@ class FindItStandardClient(FindItBaseClient):
 
 
 if __name__ == '__main__':
-    cli = FindItStandardClient(host='127.0.0.1', port=9411)
+    cli = FindItStandardClient(host='172.17.204.2', port=29412)
     assert cli.heartbeat()
-    result = cli.analyse_with_path(
+    result = cli.check_exist_with_path(
         u'../tests/pics/screen.png',
-        u'wechat_logo.png',
+        u'desktop/wechat_logo.png',
+        threshold=0.8,
+        engine_template_scale=(1, 4, 10),
         # mask_pic_path='wechat_logo.png',
-        # engine_feature_cluster_num='4',
+        engine_feature_cluster_num=4,
     )
     print(result)
