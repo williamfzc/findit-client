@@ -2,24 +2,18 @@ os: linux
 dist: xenial
 language: python
 python:
-  - "2.7"
-  - "3.5"
+#  - "2.7"
+#  - "3.5"
   - "3.6"
   - "3.7"
 sudo: false
 
-services:
-  - docker
-
 install:
   - pip install pytest
+  - pip install findit
   - pip install .
-  - docker pull williamfzc/findit
-  - docker run -d -v ${TRAVIS_BUILD_DIR}/tests/pics:/root/pics -p 29410:9410 --name findit-server williamfzc/findit
 
 script:
   - pytest tests/test_client.py
   - pip install opencv-python
   - pytest tests/test_standard.py
-  - docker stop findit-server
-  - docker rm findit-server
