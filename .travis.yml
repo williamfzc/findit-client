@@ -1,28 +1,23 @@
 os: linux
 dist: xenial
 language: python
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+  - "3.7"
 sudo: false
 
 services:
   - docker
 
-matrix:
-  include:
-  - python: "2.7"
-    env: TEST_CASE=test_client.py
-  - python: "3.5"
-    env: TEST_CASE=test_standard.py
-  - python: "3.6"
-    env: TEST_CASE=test_standard.py
-  - python: "3.7"
-    env: TEST_CASE=test_standard.py
-
 install:
   - pip install pytest
   - pip install .
-  - if [ "$TEST_CASE" = "test_standard.py" ]; then pip install opencv-python; fi
   - docker pull williamfzc/findit
   - docker run -d -v ${TRAVIS_BUILD_DIR}/tests/pics:/root/pics -p 29410:9410 williamfzc/findit
 
 script:
-  - pytest tests/$TEST_CASE
+  - pytest tests/test_client.py
+  - pip install opencv-python
+  - pytest tests/test_standard.py
