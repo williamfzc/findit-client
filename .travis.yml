@@ -6,14 +6,6 @@ sudo: false
 services:
   - docker
 
-before_install:
-  - docker pull williamfzc/findit
-  - docker run -d -v `PWD`/tests/pics:/root/pics -p 9410:9410 williamfzc/findit
-
-install:
-  - pip install pytest
-  - pip install .
-
 matrix:
   include:
   - python: "2.7"
@@ -24,6 +16,13 @@ matrix:
     env: TEST_CASE=test_standard.py
   - python: "3.7"
     env: TEST_CASE=test_standard.py
+
+install:
+  - pip install pytest
+  - pip install .
+  - if [ "$TEST_CASE" = "test_standard.py" ]; then pip install opencv-python; fi
+  - docker pull williamfzc/findit
+  - docker run -d -v `PWD`/tests/pics:/root/pics -p 9410:9410 williamfzc/findit
 
 script:
   - pytest tests/$TEST_CASE
