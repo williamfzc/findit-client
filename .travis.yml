@@ -25,4 +25,4 @@ install:
   - docker run -d -v ${TRAVIS_BUILD_DIR}/tests/pics:/root/pics -p 29410:9410 williamfzc/findit
 
 script:
-  - pytest –s tests/$TEST_CASE
+  - pytest tests/$TEST_CASE
