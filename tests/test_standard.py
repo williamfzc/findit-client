@@ -2,10 +2,11 @@ import cv2
 
 from findit_client import FindItStandardClient
 
-find_it_client = FindItStandardClient()
-
 TARGET_PATH = r'tests/pics/screen.png'
 TEMPLATE_NAME = r'wechat_logo.png'
+PORT = 29410
+
+find_it_client = FindItStandardClient(port=PORT)
 
 
 def test_heartbeat():

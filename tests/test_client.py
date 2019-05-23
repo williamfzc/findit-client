@@ -1,9 +1,10 @@
 from findit_client import FindItClient
 
-find_it_client = FindItClient()
-
 TARGET_PATH = r'tests/pics/screen.png'
 TEMPLATE_NAME = r'wechat_logo.png'
+PORT = 29410
+
+find_it_client = FindItClient(port=PORT)
 
 
 def test_heartbeat():
