@@ -22,7 +22,7 @@ def test_heartbeat():
 
 
 def test_analyse_with_path():
-    result = find_it_client.analyse_with_path('pics/screen.png', 'wechat_logo.png')
+    result = find_it_client.analyse_with_path('tests/pics/screen.png', 'wechat_logo.png')
     assert 'request' in result
     assert 'response' in result
     assert 'msg' in result
@@ -34,7 +34,7 @@ def test_analyse_with_path():
 
 
 def test_analyse_with_object():
-    pic_object = cv2.imread('pics/screen.png')
+    pic_object = cv2.imread('tests/pics/screen.png')
     result = find_it_client.analyse_with_object(pic_object, 'wechat_logo.png')
     assert 'request' in result
     assert 'response' in result
@@ -48,7 +48,7 @@ def test_analyse_with_object():
 
 def test_analyse_with_extras():
     result = find_it_client.analyse_with_path(
-        'pics/screen.png', 'wechat_logo.png', a='123', b='456', need_log=True)
+        'tests/pics/screen.png', 'wechat_logo.png', a='123', b='456', need_log=True)
 
     assert 'request' in result
     assert 'response' in result
