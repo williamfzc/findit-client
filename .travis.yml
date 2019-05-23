@@ -22,7 +22,7 @@ install:
   - pip install .
   - if [ "$TEST_CASE" = "test_standard.py" ]; then pip install opencv-python; fi
   - docker pull williamfzc/findit
-  - docker run -d -v `PWD`/tests/pics:/root/pics -p 9410:9410 williamfzc/findit
+  - docker run -d -v ${TRAVIS_BUILD_DIR}/tests/pics:/root/pics -p 9410:9410 williamfzc/findit
 
 script:
   - pytest tests/$TEST_CASE
