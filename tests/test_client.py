@@ -21,5 +21,5 @@ def test_heartbeat():
 
 
 def test_analyse_with_path():
-    result = find_it_client.analyse_with_path('tests/pics/screen.png', 'wechat_logo.png')
+    result = find_it_client.analyse_with_path('pics/screen.png', 'wechat_logo.png')
     assert 'data' in result
