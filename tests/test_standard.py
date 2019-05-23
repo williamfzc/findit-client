@@ -1,20 +1,8 @@
-import pytest
-import subprocess
-import time
 import cv2
 
 from findit_client import FindItStandardClient
 
 find_it_client = FindItStandardClient()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def life_time():
-    server_process = subprocess.Popen('python -m findit.server --dir tests/pics', shell=True)
-    time.sleep(3)
-    yield
-    server_process.terminate()
-    server_process.kill()
 
 
 def test_heartbeat():
