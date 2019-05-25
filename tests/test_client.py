@@ -39,3 +39,8 @@ def test_analyse_with_path():
 def test_check_exist_with_path():
     result = find_it_client.check_exist_with_path(TARGET_PATH, TEMPLATE_NAME, 0.95)
     assert result
+
+
+def test_get_target_point_with_path():
+    result = find_it_client.get_target_point_with_path(TARGET_PATH, TEMPLATE_NAME)
+    assert len(result) == 2

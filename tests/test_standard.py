@@ -70,3 +70,9 @@ def test_check_exist_with_object():
     pic_object = cv2.imread(TARGET_PATH)
     result = find_it_client.check_exist_with_object(pic_object, TEMPLATE_NAME, 0.95)
     assert result
+
+
+def test_get_target_point_with_object():
+    pic_object = cv2.imread(TARGET_PATH)
+    result = find_it_client.get_target_point_with_object(pic_object, TEMPLATE_NAME)
+    assert len(result) == 2
