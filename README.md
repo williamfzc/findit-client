@@ -12,45 +12,85 @@ Client for [findit](https://github.com/williamfzc/findit), with no opencv needed
 
 ## 使用
 
-我们希望在本地图片 `screen.png` 中寻找 `wechat_logo.png`
+### 服务器部署
 
-### 本地服务
+参考文档：[这里](https://williamfzc.github.io/findit/#/usage/client+server?id=服务端部署)
 
-假设你的findit-server部署在 29412 端口
+### 连接到服务器
 
-```python
-from findit_client import FindItClient
-
-cli = FindItClient(port=29412)
-assert cli.heartbeat()
-result = cli.analyse_with_path('screen.png', u'wechat_logo.png')
-print(result)
-```
-
-result结果：
-
-```text
-{'data': {'temp_template': {'FeatureEngine': [524.6688232421875,
-                                              364.54248046875],
-                            'TemplateEngine': [505.5, 374.5]}},
- 'target_name': 'temp_target',
- 'target_path': '/tmp/tmprh4m59_x.png'}
-```
-
-### 远程服务
-
-假设你的findit-server部署在远程服务器 172.17.12.34 的 29412 端口
+本地服务器：
 
 ```python
 from findit_client import FindItClient
 
-cli = FindItClient(host='172.17.12.34', port=29412)
-assert cli.heartbeat()
-result = cli.analyse_with_path('screen.png', u'wechat_logo.png')
+cli = FindItClient(port=9410)
+```
+
+远程服务器：
+
+```python
+from findit_client import FindItClient
+
+cli = FindItClient(host='123.45.67.8', port=9410)
+```
+
+### 获取完全的分析结果
+
+我们希望在本地图片 `screen.png` 中寻找 `wechat_logo.png`（这里假设该图片已存在于服务器）
+
+```python
+from findit_client import FindItClient
+
+cli = FindItStandardClient()
+
+result = cli.analyse_with_path('screen.png', 'wechat_logo.png')
 print(result)
 ```
 
-result与本地一致。
+将会返回完整的结果，供开发者自由定制。
+
+### 获取目标点位置
+
+```python
+result = cli.get_target_point_with_path(
+    'screen.png',
+    'wechat_logo.png',
+    threshold=0.8,
+)
+```
+
+当相似度超过0.8时，会返回模板图片的坐标；否则抛出异常。
+
+如果不传入threshold，则会返回最可能的坐标。
+
+### 检查目标是否存在
+
+```python
+result = cli.check_exist_with_path(
+    'screen.png',
+    'wechat_logo.png',
+    threshold=0.8,
+)
+```
+
+当相似度超过0.8时，返回True，否则False。
+
+### 分析 opencv object
+
+为了最小化client的依赖，默认的client并没有支持opencv。如果你希望直接识别opencv对象，你可以使用 `FindItStandardClient` 替代 `FindItClient`。
+
+```python
+from findit_client import FindItStandardClient
+import cv2
+
+cli = FindItStandardClient()
+
+target_object = cv2.imread('tests/pics/screen.png')
+result = cli.analyse_with_object(target_object, 'wechat_logo.png')
+print(result)
+```
+
+用法基本与path类一致。
 
 ## 协议
 
