@@ -10,6 +10,8 @@ class FindItBaseClient(object):
         host = host or '127.0.0.1'
         port = port or 9410
         self.url = 'http://{}:{}'.format(host, port)
+
+        assert self.heartbeat(), 'heartbeat check failed. make sure your findit-server is started.'
         logger.info('client init finished, server url: {}'.format(self.url))
 
     @staticmethod
@@ -30,14 +32,23 @@ class FindItBaseClient(object):
             data=arg_dict,
             files={'file': pic_data}
         )
+        resp_content = resp.text
+        assert 'OK' in resp_content, f'error happened: {resp_content}'
         resp_dict = resp.json()
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
-        logger.info('response: {}'.format(json.dumps(resp_dict)))
+
+        logger.info('response: {}'.format(resp_content))
         return resp_dict
 
     def analyse_with_path(self, target_pic_path, template_pic_name, **extra_args):
+        """ return full response """
         with open(target_pic_path, 'rb') as f:
             pic_data = f.read()
+
+        # change default cv method
+        extra_args['engine_template_cv_method_name'] = 'cv2.TM_CCOEFF_NORMED'
+        # enable pro mode by default
+        extra_args['pro_mode'] = True
 
         return self._request(
             arg_dict={
@@ -48,22 +59,34 @@ class FindItBaseClient(object):
             pic_data=pic_data,
         )
 
-    def check_exist_with_path(self, target_pic_path, template_pic_name, threshold, **extra_args):
-        result = self.analyse_with_path(target_pic_path, template_pic_name, pro_mode=True, **extra_args)
-        return self.check_exist_with_resp(result['response'], threshold)
-
     @staticmethod
     def _fix_response(response):
         if ('data' not in response) and ('response' in response):
             return response['response']
         return response
 
+    def check_exist_with_path(self, target_pic_path, template_pic_name, threshold, **extra_args):
+        """ return true or false """
+        result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
+        return self.check_exist_with_resp(result, threshold)
+
     def check_exist_with_resp(self, response, threshold):
+        """ return true or false """
         response = self._fix_response(response)
         match_result = list(response['data'].values())[0]['TemplateEngine']['raw']['max_val']
         logger.info('matching result is: {}, and threshold is: {}'.format(match_result, threshold))
         return match_result > threshold
 
-    def get_target_point_with_resp(self, response):
+    def get_target_point_with_path(self, target_pic_path, template_pic_name, threshold=None, **extra_args):
+        """ return target position if existed, else raise Error """
+        result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
+        if threshold:
+            assert self.check_exist_with_resp(result, threshold)
+        return self.get_target_point_with_resp(result)
+
+    def get_target_point_with_resp(self, response, threshold=None):
+        """ return target position if existed, else raise Error """
         response = self._fix_response(response)
+        if threshold:
+            assert self.check_exist_with_resp(response, threshold)
         return list(response['data'].values())[0]['TemplateEngine']['raw']['max_loc']

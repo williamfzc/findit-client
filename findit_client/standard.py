@@ -30,20 +30,22 @@ class FindItStandardClient(FindItBaseClient):
         with cv2file(target_pic_object) as file_path:
             return self.analyse_with_path(file_path, template_pic_name, **extra_args)
 
+    def get_target_point_with_object(self, target_pic_object, template_pic_name, threshold=None, **extra_args):
+        with cv2file(target_pic_object) as file_path:
+            return self.get_target_point_with_path(file_path, template_pic_name, threshold=threshold, **extra_args)
+
     def check_exist_with_object(self, target_pic_object, template_pic_name, threshold, **extra_args):
         with cv2file(target_pic_object) as file_path:
             return self.check_exist_with_path(file_path, template_pic_name, threshold, **extra_args)
 
 
 if __name__ == '__main__':
-    cli = FindItStandardClient(host='172.17.204.2', port=29412)
+    cli = FindItStandardClient(port=9410)
     assert cli.heartbeat()
-    result = cli.check_exist_with_path(
+
+    result = cli.get_target_point_with_path(
         u'../tests/pics/screen.png',
-        u'desktop/wechat_logo.png',
+        u'wechat_logo.png',
         threshold=0.8,
-        engine_template_scale=(1, 4, 10),
-        # mask_pic_path='wechat_logo.png',
-        engine_feature_cluster_num=4,
     )
     print(result)
