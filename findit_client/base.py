@@ -26,7 +26,7 @@ class FindItBaseClient(object):
             files={'file': pic_data}
         )
         resp_dict = resp.json()
-        logger.info('request: {}'.format(json.dumps(arg_dict)))
+        resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
         logger.info('response: {}'.format(json.dumps(resp_dict)))
         return resp_dict
 
