@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 import requests
 import json
+from findit_client import logger as logger_mod
 from logzero import logger
 
 
@@ -10,6 +11,10 @@ class FindItBaseClient(object):
         port = port or 9410
         self.url = 'http://{}:{}'.format(host, port)
         logger.info('client init finished, server url: {}'.format(self.url))
+
+    @staticmethod
+    def switch_log(status):
+        logger_mod.switch_log(status)
 
     def heartbeat(self):
         target_url = '{}/'.format(self.url)
@@ -45,6 +50,20 @@ class FindItBaseClient(object):
 
     def check_exist_with_path(self, target_pic_path, template_pic_name, threshold, **extra_args):
         result = self.analyse_with_path(target_pic_path, template_pic_name, pro_mode=True, **extra_args)
-        match_result = list(result['response']['data'].values())[0]['TemplateEngine']['raw']['max_val']
+        return self.check_exist_with_resp(result['response'], threshold)
+
+    @staticmethod
+    def _fix_response(response):
+        if ('data' not in response) and ('response' in response):
+            return response['response']
+        return response
+
+    def check_exist_with_resp(self, response, threshold):
+        response = self._fix_response(response)
+        match_result = list(response['data'].values())[0]['TemplateEngine']['raw']['max_val']
         logger.info('matching result is: {}, and threshold is: {}'.format(match_result, threshold))
         return match_result > threshold
+
+    def get_target_point_with_resp(self, response):
+        response = self._fix_response(response)
+        return list(response['data'].values())[0]['TemplateEngine']['raw']['max_loc']
