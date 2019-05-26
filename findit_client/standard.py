@@ -26,6 +26,7 @@ class FindItStandardClient(FindItBaseClient):
     """
     powerful client, with all functions of findit. (need opencv installed)
     """
+
     def analyse_with_object(self, target_pic_object, template_pic_name, **extra_args):
         with cv2file(target_pic_object) as file_path:
             return self.analyse_with_path(file_path, template_pic_name, **extra_args)
@@ -33,6 +34,10 @@ class FindItStandardClient(FindItBaseClient):
     def get_target_point_with_object(self, target_pic_object, template_pic_name, threshold=None, **extra_args):
         with cv2file(target_pic_object) as file_path:
             return self.get_target_point_with_path(file_path, template_pic_name, threshold=threshold, **extra_args)
+
+    def get_target_point_list_with_object(self, target_pic_object, template_pic_name, threshold=None, **extra_args):
+        with cv2file(target_pic_object) as file_path:
+            return self.get_target_point_list_with_path(file_path, template_pic_name, threshold=threshold, **extra_args)
 
     def check_exist_with_object(self, target_pic_object, template_pic_name, threshold, **extra_args):
         with cv2file(target_pic_object) as file_path:

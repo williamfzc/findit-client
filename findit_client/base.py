@@ -33,7 +33,7 @@ class FindItBaseClient(object):
             files={'file': pic_data}
         )
         resp_content = resp.text
-        assert 'OK' in resp_content, f'error happened: {resp_content}'
+        assert 'OK' in resp_content, 'error happened'.format(resp_content)
         resp_dict = resp.json()
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
 
@@ -73,9 +73,13 @@ class FindItBaseClient(object):
     def check_exist_with_resp(self, response, threshold):
         """ return true or false """
         response = self._fix_response(response)
-        match_result = list(response['data'].values())[0]['TemplateEngine']['raw']['max_val']
+        match_result = self.get_template_engine_result_with_resp(response)['raw']['max_val']
         logger.info('matching result is: {}, and threshold is: {}'.format(match_result, threshold))
         return match_result > threshold
+
+    @staticmethod
+    def get_template_engine_result_with_resp(response):
+        return list(response['data'].values())[0]['TemplateEngine']
 
     def get_target_point_with_path(self, target_pic_path, template_pic_name, threshold=None, **extra_args):
         """ return target position if existed, else raise Error """
@@ -84,9 +88,21 @@ class FindItBaseClient(object):
             assert self.check_exist_with_resp(result, threshold)
         return self.get_target_point_with_resp(result)
 
+    def get_target_point_list_with_path(self, target_pic_path, template_pic_name, threshold=None, **extra_args):
+        result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
+        if threshold:
+            assert self.check_exist_with_resp(result, threshold)
+        return self.get_target_point_list_with_resp(result)
+
     def get_target_point_with_resp(self, response, threshold=None):
         """ return target position if existed, else raise Error """
         response = self._fix_response(response)
         if threshold:
             assert self.check_exist_with_resp(response, threshold)
-        return list(response['data'].values())[0]['TemplateEngine']['raw']['max_loc']
+        return self.get_template_engine_result_with_resp(response)['raw']['max_loc']
+
+    def get_target_point_list_with_resp(self, response, threshold=None):
+        response = self._fix_response(response)
+        if threshold:
+            assert self.check_exist_with_resp(response, threshold)
+        return self.get_template_engine_result_with_resp(response)['raw']['all']
