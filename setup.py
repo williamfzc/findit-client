@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='findit_client',
-    version='0.1.2',
+    version='0.1.3',
     description='client for findit, with no opencv needed',
     author='williamfzc',
     author_email='fengzc@vip.qq.com',
