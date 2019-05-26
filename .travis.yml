@@ -9,7 +9,7 @@ python:
 sudo: false
 
 install:
-  - pip install pytest pytest-cov
+  - pip install pytest pytest-cov codecov
   - pip install findit
   - pip install .
 
