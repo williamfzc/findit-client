@@ -9,11 +9,14 @@ python:
 sudo: false
 
 install:
-  - pip install pytest
+  - pip install pytest pytest-cov
   - pip install findit
   - pip install .
 
 script:
-  - pytest tests/test_client.py
+  - pytest tests/test_client.py --cov=./
   - pip install opencv-python
-  - pytest tests/test_standard.py
+  - pytest tests/test_standard.py --cov=./
+
+after_success:
+  - codecov
