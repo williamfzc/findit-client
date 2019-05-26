@@ -1,15 +1,23 @@
 # -*- coding:utf-8 -*-
 import requests
 import json
+import copy
 from findit_client import logger as logger_mod
 from logzero import logger
 
 
 class FindItBaseClient(object):
-    def __init__(self, host=None, port=None):
+    def __init__(self, host=None, port=None, **default_args):
         host = host or '127.0.0.1'
         port = port or 9410
         self.url = 'http://{}:{}'.format(host, port)
+
+        # default args
+        self.default_extra_args = {
+            'engine_template_cv_method_name': 'cv2.TM_CCOEFF_NORMED',
+            'pro_mode': True,
+        }
+        self.default_extra_args.update(default_args)
 
         assert self.heartbeat(), 'heartbeat check failed. make sure your findit-server is started.'
         logger.info('client init finished, server url: {}'.format(self.url))
@@ -27,6 +35,7 @@ class FindItBaseClient(object):
             return False
 
     def _request(self, arg_dict, pic_data):
+
         resp = requests.post(
             '{}/analyse'.format(self.url),
             data=arg_dict,
@@ -45,16 +54,14 @@ class FindItBaseClient(object):
         with open(target_pic_path, 'rb') as f:
             pic_data = f.read()
 
-        # change default cv method
-        extra_args['engine_template_cv_method_name'] = 'cv2.TM_CCOEFF_NORMED'
-        # enable pro mode by default
-        extra_args['pro_mode'] = True
+        final_extra_args = copy.deepcopy(self.default_extra_args)
+        final_extra_args.update(extra_args)
 
         return self._request(
             arg_dict={
                 'target_pic_path': target_pic_path,
                 'template_name': template_pic_name,
-                'extras': json.dumps(extra_args),
+                'extras': json.dumps(final_extra_args),
             },
             pic_data=pic_data,
         )
