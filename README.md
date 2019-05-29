@@ -41,13 +41,22 @@ cli = FindItClient(host='123.45.67.8', port=9410)
 ```python
 from findit_client import FindItClient
 
-cli = FindItStandardClient()
+cli = FindItClient()
 
 result = cli.analyse_with_path('screen.png', 'wechat_logo.png')
 print(result)
 ```
 
 将会返回完整的结果，供开发者自由定制。
+
+### 多目标支持
+
+你可以在一次请求内检测多个目标。
+
+```python
+result = cli.analyse_with_path('screen.png', ['wechat_logo.png', 'app_store_logo.png'])
+print(result)
+```
 
 ### 获取目标点位置
 

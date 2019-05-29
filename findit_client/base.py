@@ -54,6 +54,10 @@ class FindItBaseClient(object):
         with open(target_pic_path, 'rb') as f:
             pic_data = f.read()
 
+        # support multi pictures in single request
+        if isinstance(template_pic_name, (tuple, list)):
+            template_pic_name = ','.join(template_pic_name)
+
         final_extra_args = copy.deepcopy(self.default_extra_args)
         final_extra_args.update(extra_args)
 
