@@ -7,7 +7,7 @@ from logzero import logger
 import atexit
 import time
 import subprocess
-import platform
+import pprint
 
 
 class FindItLocalServer(object):
@@ -86,12 +86,10 @@ class FindItBaseClient(object):
             data=arg_dict,
             files={'file': pic_data}
         )
-        resp_content = resp.text
-        assert 'OK' in resp_content, 'error happened: {}'.format(resp_content)
         resp_dict = resp.json()
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
-
-        logger.info('response: {}'.format(resp_content))
+        assert resp_dict['status'] == 'OK', 'error happened: {}'.format(pprint.saferepr(resp_dict))
+        logger.info('response: {}'.format(resp_dict))
         return resp_dict
 
     def analyse_with_path(self, target_pic_path, template_pic_name, **extra_args):
