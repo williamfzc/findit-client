@@ -4,13 +4,40 @@ import json
 import copy
 from findit_client import logger as logger_mod
 from logzero import logger
+import atexit
+import time
+import subprocess
 
 
 class FindItBaseClient(object):
-    def __init__(self, host=None, port=None, **default_args):
+    def __init__(self, host=None, port=None, local_mode=None, pic_root=None, python_path=None, **default_args):
         host = host or '127.0.0.1'
         port = port or 9410
         self.url = 'http://{}:{}'.format(host, port)
+
+        # local mode will start a local server
+        if local_mode:
+            assert pic_root, 'local mode requires pic_root'
+            self.switch_log(True)
+
+            # start server on port 9410
+            if not python_path:
+                python_path = 'python'
+            start_cmd = '{} -m findit.server --dir {} --port {}'.format(
+                python_path,
+                pic_root,
+                port,
+            )
+            logger.info('local mode enabled. start cmd: [{}]'.format(start_cmd))
+            server_process = subprocess.Popen(start_cmd, shell=True)
+            time.sleep(5)
+
+            # kill server after client end
+            def stop_server():
+                logger.info('kill the local server')
+                server_process.kill()
+
+            atexit.register(stop_server)
 
         # default args
         self.default_extra_args = {
@@ -42,7 +69,7 @@ class FindItBaseClient(object):
             files={'file': pic_data}
         )
         resp_content = resp.text
-        assert 'OK' in resp_content, 'error happened'.format(resp_content)
+        assert 'OK' in resp_content, 'error happened: {}'.format(resp_content)
         resp_dict = resp.json()
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
 
