@@ -7,6 +7,39 @@ from logzero import logger
 import atexit
 import time
 import subprocess
+import platform
+
+
+class FindItLocalServer(object):
+    DEFAULT_PYTHON = 'python'
+    DEFAULT_PORT = 9410
+
+    def __init__(self, port=None, pic_root=None, python_path=None, *_, **__):
+        assert pic_root, 'local mode requires pic_root'
+
+        self.pic_root = pic_root
+        self.port = port or self.DEFAULT_PORT
+        self.python_path = python_path or self.DEFAULT_PYTHON
+
+        self.server_process = None
+
+    def start(self):
+        start_cmd = '{} -m findit.server --dir {} --port {}'.format(
+            self.python_path,
+            self.pic_root,
+            self.port,
+        )
+        logger.info('local mode enabled. start cmd: [{}]'.format(start_cmd))
+
+        if platform.system() == 'Windows':
+            self.server_process = subprocess.Popen(start_cmd)
+        else:
+            self.server_process = subprocess.Popen(start_cmd, shell=True)
+        time.sleep(5)
+
+    def stop(self):
+        self.server_process.terminate()
+        self.server_process.kill()
 
 
 class FindItBaseClient(object):
@@ -17,27 +50,15 @@ class FindItBaseClient(object):
 
         # local mode will start a local server
         if local_mode:
-            assert pic_root, 'local mode requires pic_root'
+            try:
+                import findit
+            except ImportError:
+                raise ImportError('local mode requires findit. install it first.')
+
             self.switch_log(True)
-
-            # start server on port 9410
-            if not python_path:
-                python_path = 'python'
-            start_cmd = '{} -m findit.server --dir {} --port {}'.format(
-                python_path,
-                pic_root,
-                port,
-            )
-            logger.info('local mode enabled. start cmd: [{}]'.format(start_cmd))
-            server_process = subprocess.Popen(start_cmd, shell=True)
-            time.sleep(5)
-
-            # kill server after client end
-            def stop_server():
-                logger.info('kill the local server')
-                server_process.kill()
-
-            atexit.register(stop_server)
+            server = FindItLocalServer(port, pic_root, python_path)
+            server.start()
+            atexit.register(server.stop)
 
         # default args
         self.default_extra_args = {
