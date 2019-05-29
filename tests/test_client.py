@@ -1,6 +1,4 @@
-import subprocess
-import time
-import pytest
+import os
 
 from findit_client import FindItClient
 
@@ -8,24 +6,16 @@ TARGET_PATH = r'tests/pics/screen.png'
 TEMPLATE_NAME = r'wechat_logo.png'
 PORT = 9410
 
-
-@pytest.fixture(scope="session", autouse=True)
-def life_time():
-    server_process = subprocess.Popen('python3 -m findit.server --dir tests/pics --port {}'.format(PORT), shell=True)
-    time.sleep(3)
-    global find_it_client
-    find_it_client = FindItClient(port=PORT)
-    yield
-    server_process.terminate()
-    server_process.kill()
+pic_root = os.path.join(os.path.dirname(__file__), 'pics')
+cli = FindItClient(local_mode=True, pic_root=pic_root, python_path='python3')
 
 
 def test_heartbeat():
-    assert find_it_client.heartbeat()
+    assert cli.heartbeat()
 
 
 def test_analyse_with_path():
-    result = find_it_client.analyse_with_path(TARGET_PATH, TEMPLATE_NAME)
+    result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME)
     assert 'request' in result
     assert 'response' in result
     assert 'msg' in result
@@ -37,15 +27,15 @@ def test_analyse_with_path():
 
 
 def test_check_exist_with_path():
-    result = find_it_client.check_exist_with_path(TARGET_PATH, TEMPLATE_NAME, 0.95)
+    result = cli.check_exist_with_path(TARGET_PATH, TEMPLATE_NAME, 0.95)
     assert result
 
 
 def test_get_target_point_with_path():
-    result = find_it_client.get_target_point_with_path(TARGET_PATH, TEMPLATE_NAME)
+    result = cli.get_target_point_with_path(TARGET_PATH, TEMPLATE_NAME)
     assert len(result) == 2
 
 
 def test_get_target_point_list_with_path():
-    result = find_it_client.get_target_point_list_with_path(TARGET_PATH, TEMPLATE_NAME)
+    result = cli.get_target_point_list_with_path(TARGET_PATH, TEMPLATE_NAME)
     assert len(result) >= 1
