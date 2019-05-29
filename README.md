@@ -2,6 +2,7 @@
 
 [![image](https://img.shields.io/pypi/pyversions/requests.svg)](https://pypi.org/project/requests/)
 [![Build Status](https://travis-ci.org/williamfzc/findit-client.svg?branch=master)](https://travis-ci.org/williamfzc/findit-client)
+[![PyPI version](https://badge.fury.io/py/findit-client.svg)](https://badge.fury.io/py/findit-client)
 
 Client for [findit](https://github.com/williamfzc/findit), with no opencv needed.
 
@@ -15,6 +16,23 @@ Client for [findit](https://github.com/williamfzc/findit), with no opencv needed
 ### 服务器部署
 
 参考文档：[这里](https://williamfzc.github.io/findit/#/usage/client+server?id=服务端部署)
+
+在 0.1.4 及之后的版本，你将可以使用 `local_mode` 用于在本地启动一个临时服务器用于调试，尽管这并不是client的设计初衷：
+
+```python
+cli = FindItStandardClient(
+    port=9410,
+    local_mode=True,
+
+    # 你的图片库根目录
+    pic_root='tests/pics',
+
+    # findit需要3.6+的python版本
+    python_path='python3'
+)
+```
+
+值得注意，这并不是一种推荐的正式使用方式，可能更适合你调试用。正式环境的server应该是独立的。
 
 ### 连接到服务器
 
