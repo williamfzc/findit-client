@@ -31,10 +31,7 @@ class FindItLocalServer(object):
         )
         logger.info('local mode enabled. start cmd: [{}]'.format(start_cmd))
 
-        if platform.system() == 'Windows':
-            self.server_process = subprocess.Popen(start_cmd)
-        else:
-            self.server_process = subprocess.Popen(start_cmd, shell=True)
+        self.server_process = subprocess.Popen(start_cmd, shell=True)
         time.sleep(5)
 
     def stop(self):
