@@ -33,6 +33,10 @@ class FindItLocalServer(object):
         self.server_process = subprocess.Popen(start_cmd, shell=True)
         time.sleep(5)
 
+        # raise a error, if server did not work
+        if self.server_process.poll() is not None:
+            raise RuntimeError('findit server starts failed')
+
     def stop(self):
         self.server_process.terminate()
         self.server_process.kill()
