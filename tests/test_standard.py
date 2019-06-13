@@ -54,7 +54,9 @@ def test_get_target_point_with_object():
     pic_object = cv2.imread(TARGET_PATH)
     result = cli.get_target_point_with_object(pic_object, TEMPLATE_NAME)
 
-    # is a point list, and only one point detected (in sample picture)
+    # is a target list, only one target we sent
     assert len(result) == 1
+    # is a point list, only one point detected on screen ( in this sample )
+    assert len(result[0]) == 1
     # is a point
-    assert len(result[0]) == 2
+    assert len(result[0][0]) == 2

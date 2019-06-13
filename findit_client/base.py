@@ -156,6 +156,9 @@ class FindItBaseClient(object):
 
     def get_target_point_with_path(self, target_pic_path, template_pic_name_list, threshold=None, **extra_args):
         """ return target position if existed """
+        if isinstance(template_pic_name_list, str):
+            template_pic_name_list = [template_pic_name_list]
+
         result = self.analyse_with_path(target_pic_path, template_pic_name_list, **extra_args)
 
         target_point_list = list()
