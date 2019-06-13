@@ -39,6 +39,52 @@ class FindItLocalServer(object):
         self.server_process.kill()
 
 
+class FindItResponse(object):
+    """ standard response object, for further operations. """
+
+    def __init__(self, raw_dict):
+        # check
+        self.msg = raw_dict['msg']
+        self.status = raw_dict['status']
+        assert self.status == 'OK', 'findit server status: {}, msg: {}'.format(self.status, self.msg)
+
+        # parse
+        self.request = raw_dict['request']
+        self.response = raw_dict['response']
+
+        self.data = self.response['data']
+        self.template_data = self._get_template_engine_result()
+
+    # all the functions based on template matching now.
+    def _get_template_engine_result(self):
+        resp_dict = dict()
+        for each_key, each_value in self.data.items():
+            resp_dict[each_key] = each_value['TemplateEngine']
+        return resp_dict
+
+    def is_target_in_resp(self, target_name):
+        return target_name in self._get_template_engine_result()
+
+    def get_template_engine_target_point(self, target_name):
+        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
+        target_point_list = self.template_data[target_name]['raw']['all']
+
+        # sometimes target will display multi times in different places
+        if len(target_point_list) == 1:
+            return target_point_list[0]
+        return target_point_list
+
+    def get_template_engine_target_sim(self, target_name):
+        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
+        return self.template_data[target_name]['target_sim']
+
+    def is_target_existed(self, target_name, threshold):
+        if not self.is_target_in_resp(target_name):
+            return False
+
+        return self.get_template_engine_target_sim(target_name) > threshold
+
+
 class FindItBaseClient(object):
     def __init__(self, host=None, port=None, local_mode=None, pic_root=None, python_path=None, **default_args):
         host = host or '127.0.0.1'
@@ -80,7 +126,6 @@ class FindItBaseClient(object):
             return False
 
     def _request(self, arg_dict, pic_data):
-
         resp = requests.post(
             '{}/analyse'.format(self.url),
             data=arg_dict,
@@ -90,7 +135,7 @@ class FindItBaseClient(object):
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
         assert resp_dict['status'] == 'OK', 'error happened: {}'.format(pprint.saferepr(resp_dict))
         logger.info('response: {}'.format(resp_dict))
-        return resp_dict
+        return FindItResponse(resp_dict)
 
     def analyse_with_path(self, target_pic_path, template_pic_name, **extra_args):
         """ return full response """
@@ -113,50 +158,15 @@ class FindItBaseClient(object):
             pic_data=pic_data,
         )
 
-    @staticmethod
-    def _fix_response(response):
-        if ('data' not in response) and ('response' in response):
-            return response['response']
-        return response
-
-    def check_exist_with_path(self, target_pic_path, template_pic_name, threshold, **extra_args):
-        """ return true or false """
-        result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
-        return self.check_exist_with_resp(result, threshold)
-
-    def check_exist_with_resp(self, response, threshold):
-        """ return true or false """
-        response = self._fix_response(response)
-        match_result = self.get_template_engine_result_with_resp(response)['raw']['max_val']
-        logger.info('matching result is: {}, and threshold is: {}'.format(match_result, threshold))
-        return match_result > threshold
-
-    @staticmethod
-    def get_template_engine_result_with_resp(response):
-        return list(response['data'].values())[0]['TemplateEngine']
-
     def get_target_point_with_path(self, target_pic_path, template_pic_name, threshold=None, **extra_args):
         """ return target position if existed, else raise Error """
         result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
         if threshold:
-            assert self.check_exist_with_resp(result, threshold)
-        return self.get_target_point_with_resp(result)
+            assert result.get_template_engine_target_sim(template_pic_name) > threshold
+        return result.get_template_engine_target_point(template_pic_name)
 
     def get_target_point_list_with_path(self, target_pic_path, template_pic_name, threshold=None, **extra_args):
         result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
         if threshold:
-            assert self.check_exist_with_resp(result, threshold)
-        return self.get_target_point_list_with_resp(result)
-
-    def get_target_point_with_resp(self, response, threshold=None):
-        """ return target position if existed, else raise Error """
-        response = self._fix_response(response)
-        if threshold:
-            assert self.check_exist_with_resp(response, threshold)
-        return self.get_template_engine_result_with_resp(response)['raw']['max_loc']
-
-    def get_target_point_list_with_resp(self, response, threshold=None):
-        response = self._fix_response(response)
-        if threshold:
-            assert self.check_exist_with_resp(response, threshold)
-        return self.get_template_engine_result_with_resp(response)['raw']['all']
+            assert result.get_template_engine_target_sim(template_pic_name) > threshold
+        return result.get_template_engine_target_point(template_pic_name)
