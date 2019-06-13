@@ -7,7 +7,6 @@ from logzero import logger
 import atexit
 import time
 import subprocess
-import pprint
 
 
 class FindItLocalServer(object):
@@ -70,8 +69,6 @@ class FindItResponse(object):
         target_point_list = self.template_data[target_name]['raw']['all']
 
         # sometimes target will display multi times in different places
-        if len(target_point_list) == 1:
-            return target_point_list[0]
         return target_point_list
 
     def get_template_engine_target_sim(self, target_name):
@@ -133,7 +130,6 @@ class FindItBaseClient(object):
         )
         resp_dict = resp.json()
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
-        assert resp_dict['status'] == 'OK', 'error happened: {}'.format(pprint.saferepr(resp_dict))
         logger.info('response: {}'.format(resp_dict))
         return FindItResponse(resp_dict)
 
@@ -158,15 +154,13 @@ class FindItBaseClient(object):
             pic_data=pic_data,
         )
 
-    def get_target_point_with_path(self, target_pic_path, template_pic_name, threshold=None, **extra_args):
-        """ return target position if existed, else raise Error """
-        result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
-        if threshold:
-            assert result.get_template_engine_target_sim(template_pic_name) > threshold
-        return result.get_template_engine_target_point(template_pic_name)
+    def get_target_point_with_path(self, target_pic_path, template_pic_name_list, threshold=None, **extra_args):
+        """ return target position if existed """
+        result = self.analyse_with_path(target_pic_path, template_pic_name_list, **extra_args)
 
-    def get_target_point_list_with_path(self, target_pic_path, template_pic_name, threshold=None, **extra_args):
-        result = self.analyse_with_path(target_pic_path, template_pic_name, **extra_args)
-        if threshold:
-            assert result.get_template_engine_target_sim(template_pic_name) > threshold
-        return result.get_template_engine_target_point(template_pic_name)
+        target_point_list = list()
+        for each_template_pic_name in template_pic_name_list:
+            if threshold and (result.get_template_engine_target_sim(each_template_pic_name) < threshold):
+                continue
+            target_point_list.append(result.get_template_engine_target_point(each_template_pic_name))
+        return target_point_list
