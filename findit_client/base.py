@@ -17,20 +17,15 @@ class FindItLocalServer(object):
         assert pic_root, 'local mode requires pic_root'
 
         self.pic_root = pic_root
-        self.port = port or self.DEFAULT_PORT
+        self.port = str(port or self.DEFAULT_PORT)
         self.python_path = python_path or self.DEFAULT_PYTHON
 
         self.server_process = None
+        atexit.register(self.stop)
 
     def start(self):
-        start_cmd = '{} -m findit.server --dir {} --port {}'.format(
-            self.python_path,
-            self.pic_root,
-            self.port,
-        )
-        logger.info('local mode enabled. start cmd: [{}]'.format(start_cmd))
-
-        self.server_process = subprocess.Popen(start_cmd, shell=True)
+        start_cmd = [self.python_path, '-m', 'findit.server', '--dir', self.pic_root, '--port', self.port]
+        self.server_process = subprocess.Popen(start_cmd)
         time.sleep(5)
 
         # raise a error, if server did not work
@@ -93,6 +88,7 @@ class FindItBaseClient(object):
         self.url = 'http://{}:{}'.format(host, port)
 
         # local mode will start a local server
+        self.local_server = None
         if local_mode:
             try:
                 import findit
@@ -102,7 +98,7 @@ class FindItBaseClient(object):
             self.switch_log(True)
             server = FindItLocalServer(port, pic_root, python_path)
             server.start()
-            atexit.register(server.stop)
+            self.local_server = server
 
         # default args
         self.default_extra_args = {
