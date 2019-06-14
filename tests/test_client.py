@@ -1,4 +1,5 @@
 import os
+import pytest
 
 from findit_client import FindItClient
 
@@ -7,7 +8,15 @@ TEMPLATE_NAME = r'wechat_logo.png'
 PORT = 9410
 
 pic_root = os.path.join(os.path.dirname(__file__), 'pics')
-cli = FindItClient(local_mode=True, pic_root=pic_root, python_path='python3')
+cli = None
+
+
+@pytest.fixture(scope="session", autouse=True)
+def run_at_beginning(request):
+    global cli
+    cli = FindItClient(local_mode=True, pic_root=pic_root, python_path='python')
+    yield
+    cli.local_server.stop()
 
 
 def test_heartbeat():
