@@ -7,6 +7,7 @@ from logzero import logger
 import atexit
 import time
 import subprocess
+import sys
 
 
 class FindItLocalServer(object):
@@ -33,8 +34,13 @@ class FindItLocalServer(object):
             raise RuntimeError('findit server starts failed')
 
     def stop(self):
+        if sys.platform == 'win32':
+            subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.server_process.pid)])
+
         self.server_process.terminate()
         self.server_process.kill()
+        self.server_process = None
+        logger.info('local server stopped')
 
 
 class FindItResponse(object):
