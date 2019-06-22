@@ -37,9 +37,10 @@ class FindItLocalServer(object):
         if sys.platform == 'win32':
             subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.server_process.pid)])
 
-        self.server_process.terminate()
-        self.server_process.kill()
-        self.server_process = None
+        if self.server_process:
+            self.server_process.terminate()
+            self.server_process.kill()
+            self.server_process = None
         logger.info('local server stopped')
 
 
@@ -57,17 +58,20 @@ class FindItResponse(object):
         self.response = raw_dict['response']
 
         self.data = self.response['data']
-        self.template_data = self._get_template_engine_result()
+        self.template_data = self._get_engine_result('TemplateEngine')
+        self.feature_data = self._get_engine_result('FeatureEngine')
+        self.ocr_data = self._get_engine_result('OCREngine')
 
-    # all the functions based on template matching now.
-    def _get_template_engine_result(self):
+    def _get_engine_result(self, engine_name):
         resp_dict = dict()
         for each_key, each_value in self.data.items():
-            resp_dict[each_key] = each_value['TemplateEngine']
+            if engine_name not in each_value:
+                return resp_dict
+            resp_dict[each_key] = each_value[engine_name]
         return resp_dict
 
     def is_target_in_resp(self, target_name):
-        return target_name in self._get_template_engine_result()
+        return target_name in self.template_data
 
     def get_template_engine_target_point(self, target_name):
         assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
@@ -88,7 +92,14 @@ class FindItResponse(object):
 
 
 class FindItBaseClient(object):
-    def __init__(self, host=None, port=None, local_mode=None, pic_root=None, python_path=None, **default_args):
+    def __init__(self,
+                 host=None,
+                 port=None,
+                 local_mode=None,
+                 pic_root=None,
+                 python_path=None,
+                 **default_args):
+
         host = host or '127.0.0.1'
         port = port or 9410
         self.url = 'http://{}:{}'.format(host, port)
