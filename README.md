@@ -90,18 +90,6 @@ result = cli.get_target_point_with_path(
 
 如果不传入threshold，则会返回最可能的坐标。
 
-### 检查目标是否存在
-
-```python
-result = cli.check_exist_with_path(
-    'screen.png',
-    'wechat_logo.png',
-    threshold=0.8,
-)
-```
-
-当相似度超过0.8时，返回True，否则False。
-
 ### 分析 opencv object
 
 为了最小化client的依赖，默认的client并没有支持opencv。如果你希望直接识别opencv对象，你可以使用 `FindItStandardClient` 替代 `FindItClient`。
