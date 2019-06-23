@@ -56,7 +56,7 @@ def test_analyse_with_extras():
 def test_check_exist_with_object():
     pic_object = cv2.imread(TARGET_PATH)
     result = cli.analyse_with_object(pic_object, TEMPLATE_NAME)
-    assert result.get_template_engine_target_sim(TEMPLATE_NAME) > 0.95
+    assert result.get_target_sim(TEMPLATE_NAME) > 0.95
 
 
 def test_get_target_point_with_object():

@@ -42,3 +42,28 @@ def test_analyse_with_extras():
     assert 'a' in request_dict['extras']
     assert 'b' in request_dict['extras']
     assert 'engine_template_scale' in request_dict['extras']
+
+    template_result = result.template_engine
+    assert template_result.get_conf(TEMPLATE_NAME)['engine_template_scale'] == [1, 4, 10]
+
+
+def test_template_engine():
+    result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME)
+    template_result = result.template_engine
+
+    assert template_result.get_target_sim(TEMPLATE_NAME) > 0.9
+    assert template_result.get_target_point(TEMPLATE_NAME)
+
+
+def test_feature_engine():
+    result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME)
+    feature_result = result.feature_engine
+
+    assert feature_result.get_target_point(TEMPLATE_NAME) != [-1, -1]
+
+
+def test_ocr_engine():
+    result = cli.analyse_with_path(TARGET_PATH, '', engine=['ocr'])
+    ocr_result = result.ocr_engine
+
+    assert ocr_result.get_text(TARGET_PATH)
