@@ -49,24 +49,27 @@ class FindItResponseAPI(object):
         self.data = data
 
     def is_target_in_resp(self, target_name):
-        return target_name in self.data
+        return target_name in self.data, 'target [{}] not found in data: {}'.format(target_name, self.data)
+
+    def get_target(self, target_name):
+        assert self.is_target_in_resp(target_name)
+        return self.data[target_name]
 
     def get_conf(self, target_name):
-        assert self.is_target_in_resp(target_name)
-        return self.data[target_name]['conf']
+        return self.get_target(target_name)['conf']
 
 
 class FindItResponseTemplateMatchingAPI(FindItResponseAPI):
     def get_target_point(self, target_name):
-        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
-        target_point_list = self.data[target_name]['raw']['all']
+        target = self.get_target(target_name)
+        target_point_list = target['raw']['all']
 
         # sometimes target will display multi times in different places
         return target_point_list
 
     def get_target_sim(self, target_name):
-        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
-        return self.data[target_name]['target_sim']
+        target = self.get_target(target_name)
+        return target['target_sim']
 
     def is_target_existed(self, target_name, threshold):
         if not self.is_target_in_resp(target_name):
@@ -81,15 +84,15 @@ class FindItResponseTemplateMatchingAPI(FindItResponseAPI):
 
 class FindItResponseFeatureMatchingAPI(FindItResponseAPI):
     def get_target_point(self, target_name):
-        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
-        target_point = self.data[target_name]['target_point']
+        target = self.get_target(target_name)
+        target_point = target['target_point']
 
         # sometimes target will display multi times in different places
         return target_point
 
     def get_target_point_list(self, target_name):
-        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
-        target_point_list = self.data[target_name]['target_point']['raw']
+        target = self.get_target(target_name)
+        target_point_list = target['target_point']['raw']
 
         # sometimes target will display multi times in different places
         return target_point_list
@@ -97,8 +100,8 @@ class FindItResponseFeatureMatchingAPI(FindItResponseAPI):
 
 class FindItResponseOCRAPI(FindItResponseAPI):
     def get_text(self, target_name):
-        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
-        return self.data[target_name]['raw']
+        target = self.get_target(target_name)
+        return target['raw']
 
 
 class FindItResponse(object):
