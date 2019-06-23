@@ -70,6 +70,10 @@ class FindItResponseTemplateMatchingAPI(FindItResponseAPI):
 
         return self.get_target_sim(target_name) > threshold
 
+    # old version API
+    get_template_engine_target_point = get_target_point
+    get_template_engine_target_sim = get_target_sim
+
 
 class FindItResponseFeatureMatchingAPI(FindItResponseAPI):
     pass
@@ -97,10 +101,6 @@ class FindItResponse(object):
         template_data = self._get_engine_result('TemplateEngine')
         feature_data = self._get_engine_result('FeatureEngine')
         ocr_data = self._get_engine_result('OCREngine')
-
-        print('template: ' + str(template_data))
-        print('feature: ' + str(feature_data))
-        print('ocr: ' + str(ocr_data))
 
         self.template_engine = FindItResponseTemplateMatchingAPI(template_data)
         self.feature_engine = FindItResponseFeatureMatchingAPI(feature_data)
