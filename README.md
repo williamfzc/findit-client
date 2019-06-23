@@ -65,7 +65,21 @@ result = cli.analyse_with_path('screen.png', 'wechat_logo.png')
 print(result)
 ```
 
-将会返回完整的结果，供开发者自由定制。
+将会返回完整的结果，供开发者自由定制。这也是最核心的方法，其他的API几乎都是通过该方法而来。
+
+它被设计得极为灵活，你可以在该API中传入findit本身支持的 **任何参数**，并以此对findit的行为进行干预！
+
+例如，engine参数可以改变参与分析的引擎：
+
+```python
+result = cli.analyse_with_path('screen.png', 'wechat_logo.png', engine=['ocr', 'feature'])
+```
+
+例如 `engine_ocr_lang` 能够修改 OCR 引擎的分析语言：
+
+```python
+result = cli.analyse_with_path('screen.png', 'wechat_logo.png', engine=['ocr', 'feature'], engine_ocr_lang='chi_sim')
+```
 
 ### 多目标支持
 
