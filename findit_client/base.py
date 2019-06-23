@@ -104,7 +104,7 @@ class FindItResponse(object):
 
         self.template_engine = FindItResponseTemplateMatchingAPI(template_data)
         self.feature_engine = FindItResponseFeatureMatchingAPI(feature_data)
-        self.ocr_data = FindItResponseOCRAPI(ocr_data)
+        self.ocr_engine = FindItResponseOCRAPI(ocr_data)
 
     def _get_engine_result(self, engine_name):
         resp_dict = dict()
