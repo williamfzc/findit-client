@@ -44,6 +44,41 @@ class FindItLocalServer(object):
         logger.info('local server stopped')
 
 
+class FindItResponseAPI(object):
+    def __init__(self, data):
+        self.data = data
+
+
+class FindItResponseTemplateMatchingAPI(FindItResponseAPI):
+    def is_target_in_resp(self, target_name):
+        return target_name in self.data
+
+    def get_target_point(self, target_name):
+        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
+        target_point_list = self.data[target_name]['raw']['all']
+
+        # sometimes target will display multi times in different places
+        return target_point_list
+
+    def get_target_sim(self, target_name):
+        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
+        return self.data[target_name]['target_sim']
+
+    def is_target_existed(self, target_name, threshold):
+        if not self.is_target_in_resp(target_name):
+            return False
+
+        return self.get_target_sim(target_name) > threshold
+
+
+class FindItResponseFeatureMatchingAPI(FindItResponseAPI):
+    pass
+
+
+class FindItResponseOCRAPI(FindItResponseAPI):
+    pass
+
+
 class FindItResponse(object):
     """ standard response object, for further operations. """
 
@@ -58,9 +93,18 @@ class FindItResponse(object):
         self.response = raw_dict['response']
 
         self.data = self.response['data']
-        self.template_data = self._get_engine_result('TemplateEngine')
-        self.feature_data = self._get_engine_result('FeatureEngine')
-        self.ocr_data = self._get_engine_result('OCREngine')
+
+        template_data = self._get_engine_result('TemplateEngine')
+        feature_data = self._get_engine_result('FeatureEngine')
+        ocr_data = self._get_engine_result('OCREngine')
+
+        print('template: ' + str(template_data))
+        print('feature: ' + str(feature_data))
+        print('ocr: ' + str(ocr_data))
+
+        self.template_engine = FindItResponseTemplateMatchingAPI(template_data)
+        self.feature_engine = FindItResponseFeatureMatchingAPI(feature_data)
+        self.ocr_data = FindItResponseOCRAPI(ocr_data)
 
     def _get_engine_result(self, engine_name):
         resp_dict = dict()
@@ -70,25 +114,9 @@ class FindItResponse(object):
             resp_dict[each_key] = each_value[engine_name]
         return resp_dict
 
-    def is_target_in_resp(self, target_name):
-        return target_name in self.template_data
-
-    def get_template_engine_target_point(self, target_name):
-        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
-        target_point_list = self.template_data[target_name]['raw']['all']
-
-        # sometimes target will display multi times in different places
-        return target_point_list
-
-    def get_template_engine_target_sim(self, target_name):
-        assert self.is_target_in_resp(target_name), 'target [{}] not in response'.format(target_name)
-        return self.template_data[target_name]['target_sim']
-
-    def is_target_existed(self, target_name, threshold):
-        if not self.is_target_in_resp(target_name):
-            return False
-
-        return self.get_template_engine_target_sim(target_name) > threshold
+    def __getattr__(self, item):
+        """ return template matching result by default """
+        return getattr(self.template_engine, item)
 
 
 class FindItBaseClient(object):
@@ -180,7 +208,7 @@ class FindItBaseClient(object):
 
         target_point_list = list()
         for each_template_pic_name in template_pic_name_list:
-            if threshold and (result.get_template_engine_target_sim(each_template_pic_name) < threshold):
+            if threshold and (result.template_engine.get_target_sim(each_template_pic_name) < threshold):
                 continue
-            target_point_list.append(result.get_template_engine_target_point(each_template_pic_name))
+            target_point_list.append(result.template_engine.get_target_point(each_template_pic_name))
         return target_point_list
