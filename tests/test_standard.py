@@ -27,7 +27,7 @@ def test_heartbeat():
 def test_analyse_with_path():
     result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME)
 
-    arg_list = ['msg', 'status', 'request', 'response', 'data', 'template_data']
+    arg_list = ['msg', 'status', 'request', 'response', 'data']
     for each in arg_list:
         assert hasattr(result, each)
 
@@ -35,7 +35,7 @@ def test_analyse_with_path():
 def test_analyse_with_object():
     pic_object = cv2.imread(TARGET_PATH)
     result = cli.analyse_with_object(pic_object, TEMPLATE_NAME)
-    arg_list = ['msg', 'status', 'request', 'response', 'data', 'template_data']
+    arg_list = ['msg', 'status', 'request', 'response', 'data']
     for each in arg_list:
         assert hasattr(result, each)
 
