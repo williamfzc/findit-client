@@ -64,7 +64,7 @@ def test_feature_engine():
 
 def test_ocr_engine():
     # TODO ocr engine also need a template name
-    result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME, engine=['ocr'])
+    result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME, engine=['template', 'ocr'])
     ocr_result = result.ocr_engine
 
     assert ocr_result.get_text(TEMPLATE_NAME)
