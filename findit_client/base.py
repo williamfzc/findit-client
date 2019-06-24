@@ -49,10 +49,15 @@ class FindItResponseAPI(object):
         self.data = data
 
     def is_target_in_resp(self, target_name):
-        return target_name in self.data, 'target [{}] not found in data: {}'.format(target_name, self.data)
+        return target_name in self.data
+
+    def is_target_available(self, target_name):
+        if not self.is_target_in_resp(target_name):
+            return False
+        return self.data[target_name]['ok']
 
     def get_target(self, target_name):
-        assert self.is_target_in_resp(target_name)
+        assert self.is_target_available(target_name), 'target [{}] not available: {}'.format(target_name, self.data)
         return self.data[target_name]
 
     def get_conf(self, target_name):
