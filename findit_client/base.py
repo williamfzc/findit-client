@@ -194,6 +194,8 @@ class FindItBaseClient(object):
             data=arg_dict,
             files={'file': pic_data}
         )
+        assert resp.ok, 'request findit-server failed, did your server started?'
+
         resp_dict = resp.json()
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
         logger.info('response: {}'.format(resp_dict))
