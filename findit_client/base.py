@@ -189,7 +189,8 @@ class FindItBaseClient(object):
         target_url = '{}/'.format(self.url)
         try:
             resp = requests.get(target_url)
-            return resp.ok
+            result = resp.json()
+            return ('response' in result) and (result['response'] == {'hello': 'world'})
         except requests.exceptions.ConnectionError:
             return False
 
