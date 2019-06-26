@@ -35,6 +35,8 @@ class FindItLocalServer(object):
 
     def stop(self):
         if sys.platform == 'win32':
+            # sometimes server is already dead before call, which may causes some warning
+            # it does not matter
             subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.server_process.pid)])
 
         if self.server_process:
@@ -56,27 +58,38 @@ class FindItResponseAPI(object):
             return False
         return self.data[target_name]['ok']
 
-    def get_target(self, target_name):
+    def get_target_count(self):
+        return len(self.data)
+
+    def is_single_target(self):
+        return self.get_target_count() == 1
+
+    def get_target(self, target_name=None):
+        # only one target
+        if self.is_single_target():
+            return list(self.data.values())[0]
+        # more than one
         assert self.is_target_available(target_name), 'target [{}] not available: {}'.format(target_name, self.data)
         return self.data[target_name]
 
-    def get_conf(self, target_name):
+    def get_conf(self, target_name=None):
         return self.get_target(target_name)['conf']
 
 
 class FindItResponseTemplateMatchingAPI(FindItResponseAPI):
-    def get_target_point(self, target_name):
+    def get_target_point(self, target_name=None):
         target = self.get_target(target_name)
         target_point_list = target['raw']['all']
 
         # sometimes target will display multi times in different places
         return target_point_list
 
-    def get_target_sim(self, target_name):
+    def get_target_sim(self, target_name=None):
         target = self.get_target(target_name)
         return target['target_sim']
 
-    def is_target_existed(self, target_name, threshold):
+    def is_target_existed(self, target_name=None, threshold=None):
+        assert threshold, 'threshold is required, eg: 0.9'
         if not self.is_target_in_resp(target_name):
             return False
 
@@ -88,14 +101,14 @@ class FindItResponseTemplateMatchingAPI(FindItResponseAPI):
 
 
 class FindItResponseFeatureMatchingAPI(FindItResponseAPI):
-    def get_target_point(self, target_name):
+    def get_target_point(self, target_name=None):
         target = self.get_target(target_name)
         target_point = target['target_point']
 
         # sometimes target will display multi times in different places
         return target_point
 
-    def get_target_point_list(self, target_name):
+    def get_target_point_list(self, target_name=None):
         target = self.get_target(target_name)
         target_point_list = target['target_point']['raw']
 
@@ -104,7 +117,7 @@ class FindItResponseFeatureMatchingAPI(FindItResponseAPI):
 
 
 class FindItResponseOCRAPI(FindItResponseAPI):
-    def get_text(self, target_name):
+    def get_text(self, target_name=None):
         target = self.get_target(target_name)
         return target['raw']
 

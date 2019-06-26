@@ -55,6 +55,14 @@ def test_template_engine():
     assert template_result.get_target_point(TEMPLATE_NAME)
 
 
+def test_template_engine_without_target_name():
+    result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME)
+    template_result = result.template_engine
+
+    assert template_result.get_target_sim() > 0.9
+    assert template_result.get_target_point()
+
+
 def test_feature_engine():
     result = cli.analyse_with_path(TARGET_PATH, TEMPLATE_NAME)
     feature_result = result.feature_engine
