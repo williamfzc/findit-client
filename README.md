@@ -8,8 +8,9 @@ Client for [findit](https://github.com/williamfzc/findit), with no opencv needed
 
 ## 目的
 
-- 旨在提供超低依赖的findit client，用于适应不同机器（尤其是无法安装opencv）的环境。
-- 该client只依赖于http请求，只使用了requests，依赖环境与requests一致。
+- 旨在提供超低依赖的findit client，用于适应不同机器（尤其是无法安装opencv）的环境；
+- 该client只依赖于http请求，只使用了requests，依赖环境与requests一致；
+- 足够简单易用；
 
 ## 使用
 
@@ -62,7 +63,15 @@ from findit_client import FindItClient
 cli = FindItClient()
 
 result = cli.analyse_with_path('screen.png', 'wechat_logo.png')
-print(result)
+
+# 默认使用引擎 template与feature
+# 你可以直接使用 API 操作与获取 数据
+# 或者在这些基础上自由定制你需要的API
+
+# 获取特征匹配的原始数据
+print(result.feature_engine.data)
+# 获取模板匹配的目标点坐标
+print(result.template_engine.get_target())
 ```
 
 将会返回完整的结果，供开发者自由定制。这也是最核心的方法，其他的API几乎都是通过该方法而来。
@@ -81,29 +90,6 @@ result = cli.analyse_with_path('screen.png', 'wechat_logo.png', engine=['ocr', '
 result = cli.analyse_with_path('screen.png', 'wechat_logo.png', engine=['ocr', 'feature'], engine_ocr_lang='chi_sim')
 ```
 
-### 多目标支持
-
-你可以在一次请求内检测多个目标。
-
-```python
-result = cli.analyse_with_path('screen.png', ['wechat_logo.png', 'app_store_logo.png'])
-print(result)
-```
-
-### 获取目标点位置
-
-```python
-result = cli.get_target_point_with_path(
-    'screen.png',
-    'wechat_logo.png',
-    threshold=0.8,
-)
-```
-
-当相似度超过0.8时，会返回模板图片的坐标；否则抛出异常。
-
-如果不传入threshold，则会返回最可能的坐标。
-
 ### 分析 opencv object
 
 为了最小化client的依赖，默认的client并没有支持opencv。如果你希望直接识别opencv对象，你可以使用 `FindItStandardClient` 替代 `FindItClient`。
@@ -120,6 +106,15 @@ print(result)
 ```
 
 用法基本与path类一致。
+
+### 多目标支持
+
+你可以在一次请求内检测多个目标。
+
+```python
+result = cli.analyse_with_path('screen.png', ['wechat_logo.png', 'app_store_logo.png'])
+print(result)
+```
 
 ## 协议
 
