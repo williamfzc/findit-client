@@ -119,7 +119,7 @@ class FindItResponseFeatureMatchingAPI(FindItResponseAPI):
 class FindItResponseOCRAPI(FindItResponseAPI):
     def get_text(self, target_name=None):
         target = self.get_target(target_name)
-        return target['raw']
+        return target['content']
 
 
 class FindItResponse(object):
