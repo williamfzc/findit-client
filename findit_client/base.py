@@ -121,6 +121,16 @@ class FindItResponseOCRAPI(FindItResponseAPI):
         target = self.get_target(target_name)
         return target['content']
 
+    def get_word_list(self, target_name=None):
+        target = self.get_target(target_name)
+        return target['raw']
+
+
+class FindItResponseSimAPI(FindItResponseAPI):
+    def get_sim(self, target_name=None):
+        target = self.get_target(target_name)
+        return target['ssim']
+
 
 class FindItResponse(object):
     """ standard response object, for further operations. """
@@ -140,10 +150,12 @@ class FindItResponse(object):
         template_data = self._get_engine_result('TemplateEngine')
         feature_data = self._get_engine_result('FeatureEngine')
         ocr_data = self._get_engine_result('OCREngine')
+        sim_data = self._get_engine_result('SimEngine')
 
         self.template_engine = FindItResponseTemplateMatchingAPI(template_data)
         self.feature_engine = FindItResponseFeatureMatchingAPI(feature_data)
         self.ocr_engine = FindItResponseOCRAPI(ocr_data)
+        self.sim_engine = FindItResponseSimAPI(sim_data)
 
     def _get_engine_result(self, engine_name):
         resp_dict = dict()
@@ -213,7 +225,7 @@ class FindItBaseClient(object):
             data=arg_dict,
             files={'file': pic_data}
         )
-        assert resp.ok, 'request findit-server failed, did your server started?'
+        assert resp.ok, 'request findit-server failed, did your server started? msg: {}'.format(resp.text)
 
         resp_dict = resp.json()
         resp_dict['request']['extras'] = json.loads(resp_dict['request']['extras'])
